@@ -1,0 +1,4 @@
+server:
+  port: 3002
+db:
+  connectionString: mongodb://root:password@0.0.0.0:27017/
