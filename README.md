@@ -1,5 +1,9 @@
 # FIAP - TechChallenge - product Service
 
+# Description
+
+This service is responsible for persisting and managing the products.
+
 ## Features
 
 - Create products
