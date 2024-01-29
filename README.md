@@ -2,7 +2,7 @@
 
 # Description
 
-This service is responsible for persisting and managing the products.
+This service is responsible for persisting and managing the products. We have a diagram about a flow of this service [here](./docs/diagrams/product-diagram.png).
 
 ## Features
 
@@ -14,7 +14,7 @@ This service is responsible for persisting and managing the products.
 
 First of all we need the DataBase. To set it up you have 2 options:
 
-Option 1: $```docker-compose -f deployments/db-docker-compose.yml up -d```
+Option 1: $```docker-compose -f build/db-docker-compose.yml up -d```
 
 Option 2: $```make run-db```
 
@@ -38,3 +38,11 @@ On directory ```/api``` there's a collection that can be imported on Insomnia or
 ## Running the unit tests
 
 Simply run ```make run-tests``` and let the magic happens. At the end it will automatically open an html with the coverage % for every package.
+
+## Test + Build + Bake Image
+
+Simply run ```make test-build-bake``` and let the magic happens. The docker file will run the unit-tests, build the application and bake the docker image for the application.
+
+## Infrastructure
+
+This application runs in a k8s cluster. The manifests about the configuration of this application are in this [repository](https://github.com/mauriciodm1998/product-service-gitops).
