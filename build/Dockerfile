@@ -1,20 +1,15 @@
-#mauricio1998/tech-challenge-product
-
 FROM golang as builder
 
 RUN mkdir app
 COPY ./ app
 WORKDIR app
-RUN CGO_ENABLED=0 go build -o dist/tech-challenge-product cmd/client/main.go
+RUN CGO_ENABLED=0 go test ./... -coverprofile cover.out -tags=test && go build -o dist/product-service cmd/client/main.go
 
-FROM alpine as runner
+FROM golang as runner
 
 RUN mkdir app
-COPY ./dist/tech-challenge-product app/
+COPY --from=builder ./go/app/dist/product-service app/
 RUN chmod +x app
+WORKDIR app
 
-COPY ./internal/config/config.yaml /app
-EXPOSE 3001
-WORKDIR /app
-
-ENTRYPOINT [ "./tech-challenge-product", "--config-dir", "." ]
+ENTRYPOINT [ "./product-service", "--config-dir", "." ]

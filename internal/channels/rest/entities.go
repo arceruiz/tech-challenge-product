@@ -1,11 +1,5 @@
 package rest
 
-import (
-	"errors"
-	"net/http"
-	"tech-challenge-product/internal/canonical"
-)
-
 type Response struct {
 	Message string `json:"message"`
 }
@@ -27,12 +21,4 @@ type ProductRequest struct {
 	Category    string  `json:"category"`
 	Status      int     `json:"status"`
 	ImagePath   string  `json:"image_path"`
-}
-
-func HandleError(err error) int {
-	if errors.Is(err, canonical.ErrorNotFound) {
-		return http.StatusNotFound
-	}
-
-	return http.StatusInternalServerError
 }

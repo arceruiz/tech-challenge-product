@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"tech-challenge-product/internal/canonical"
+	"tech-challenge-product/internal/mocks"
 	"tech-challenge-product/internal/repository"
 	"tech-challenge-product/internal/service"
 	"testing"
@@ -32,7 +33,7 @@ func TestProductService_GetByID(t *testing.T) {
 			given: Given{
 				id: "1234",
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetByID", mock.Anything, "1234").Return(&canonical.Product{
 						ID:          "product_valid_id",
 						Name:        "product_valid_name",
@@ -74,7 +75,7 @@ func TestProductService_GetAll(t *testing.T) {
 		"given product with main fields filled, must return created paymend with all fields filled": {
 			given: Given{
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetAll", mock.Anything).Return([]canonical.Product{
 						{
 							ID:          "product_valid_id",
@@ -129,7 +130,7 @@ func TestProductService_GetByCategory(t *testing.T) {
 			given: Given{
 				category: "product_valid_category",
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetByCategory", mock.Anything, "product_valid_category").Return([]canonical.Product{
 						{
 							ID:          "product_valid_id",
@@ -206,7 +207,7 @@ func TestProductService_Create(t *testing.T) {
 						Status:      0,
 						ImagePath:   "product_valid_imgpath",
 					}
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("Create", mock.Anything, product).Return(product, nil)
 					return repoMock
 				},
@@ -226,7 +227,7 @@ func TestProductService_Create(t *testing.T) {
 					ImagePath:   "product_valid_imgpath",
 				},
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("Create", mock.Anything, mock.Anything).Return(&canonical.Product{}, errors.New("error creating product"))
 					return repoMock
 				},
@@ -286,7 +287,7 @@ func TestProductService_Update(t *testing.T) {
 						Status:      0,
 						ImagePath:   "product_valid_imgpath",
 					}
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("Update", mock.Anything, "product_valid_id", product).Return(nil)
 					return repoMock
 				},
@@ -307,7 +308,7 @@ func TestProductService_Update(t *testing.T) {
 					ImagePath:   "product_valid_imgpath",
 				},
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("error creating product"))
 					return repoMock
 				},
@@ -342,7 +343,7 @@ func TestProductService_Remove(t *testing.T) {
 			given: Given{
 				id: "product_valid_id",
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetByID", mock.Anything, "product_valid_id").Return(&canonical.Product{
 						ID:          "product_valid_id",
 						Name:        "product_valid_name",
@@ -373,7 +374,7 @@ func TestProductService_Remove(t *testing.T) {
 			given: Given{
 				id: "product_valid_id",
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetByID", mock.Anything, "product_valid_id").Return(&canonical.Product{
 						ID:          "product_valid_id",
 						Name:        "product_valid_name",
@@ -394,7 +395,7 @@ func TestProductService_Remove(t *testing.T) {
 			given: Given{
 				id: "product_valid_id",
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetByID", mock.Anything, "product_valid_id").Return(nil, nil)
 					return repoMock
 				},
@@ -407,7 +408,7 @@ func TestProductService_Remove(t *testing.T) {
 			given: Given{
 				id: "product_valid_id",
 				productRepo: func() repository.ProductRepository {
-					repoMock := &repository.ProductRepositoryMock{}
+					repoMock := &mocks.ProductRepositoryMock{}
 					repoMock.On("GetByID", mock.Anything, "product_valid_id").Return(&canonical.Product{
 						ID:          "product_valid_id",
 						Name:        "product_valid_name",

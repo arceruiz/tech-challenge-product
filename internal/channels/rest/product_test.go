@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"tech-challenge-product/internal/canonical"
 	"tech-challenge-product/internal/channels/rest"
+	"tech-challenge-product/internal/mocks"
 	"tech-challenge-product/internal/service"
 	"testing"
 
@@ -34,7 +35,7 @@ func TestRegisterGroup(t *testing.T) {
 		"given valid group, should register endpoints successfully": {
 			given: Given{
 				group:          echo.New().Group("/product"),
-				paymenyService: &service.ProductServiceMock{},
+				paymenyService: &mocks.ProductServiceMock{},
 			},
 			expected: Expected{
 				err:        assert.NoError,
@@ -336,8 +337,8 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func mockProductServiceForRemove(id string, productReturned canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForRemove(id string, productReturned canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 
 	mockProductSvc.
 		On("Remove", mock.Anything, id).
@@ -350,8 +351,8 @@ func mockProductServiceForRemove(id string, productReturned canonical.Product) *
 	return mockProductSvc
 }
 
-func mockProductServiceForUpdate(id string, productReturned canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForUpdate(id string, productReturned canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 
 	mockProductSvc.
 		On("Update", mock.Anything, id, productReturned).
@@ -364,8 +365,8 @@ func mockProductServiceForUpdate(id string, productReturned canonical.Product) *
 	return mockProductSvc
 }
 
-func mockProductServiceForGetByCategory(category string, productReturned []canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForGetByCategory(category string, productReturned []canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 
 	mockProductSvc.
 		On("GetByCategory", mock.Anything, category).
@@ -374,8 +375,8 @@ func mockProductServiceForGetByCategory(category string, productReturned []canon
 	return mockProductSvc
 }
 
-func mockProductServiceForGetByID(productID string, productReturned *canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForGetByID(productID string, productReturned *canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 
 	mockProductSvc.
 		On("GetByID", mock.Anything, productID).
@@ -384,8 +385,8 @@ func mockProductServiceForGetByID(productID string, productReturned *canonical.P
 	return mockProductSvc
 }
 
-func mockProductServiceForGetAll(productID string, productReturned []canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForGetAll(productID string, productReturned []canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 
 	mockProductSvc.
 		On("GetAll", mock.Anything).
@@ -394,8 +395,8 @@ func mockProductServiceForGetAll(productID string, productReturned []canonical.P
 	return mockProductSvc
 }
 
-func mockProductServiceForGetAll_error(productID string, productReturned []canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForGetAll_error(productID string, productReturned []canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 
 	mockProductSvc.
 		On("GetAll", mock.Anything).
@@ -404,8 +405,8 @@ func mockProductServiceForGetAll_error(productID string, productReturned []canon
 	return mockProductSvc
 }
 
-func mockProductServiceForCreate(productReceived, productReturned canonical.Product) *service.ProductServiceMock {
-	mockProductSvc := new(service.ProductServiceMock)
+func mockProductServiceForCreate(productReceived, productReturned canonical.Product) *mocks.ProductServiceMock {
+	mockProductSvc := new(mocks.ProductServiceMock)
 	mockProductSvc.On("Create", mock.Anything, &productReceived).Return(&productReturned, nil)
 	mockProductSvc.On("Create", mock.Anything, &canonical.Product{
 		ID:          "",
