@@ -25,19 +25,13 @@ Then you can run the application:
 ### VSCode - Debug
 The launch.json file is already configured for debuging. Just hit F5 and be happy.
 
-### Running directly from go
-
-Option 1: $```go run cmd/client/main.go```
-
-Option 2: $```make run-app```
-
 ## Manually testing the API
 
 On directory ```/api``` there's a collection that can be imported on Insomnia or similar so you can test manually the application's API.
 
 ## Running the unit tests
 
-Simply run ```make run-tests``` and let the magic happens. At the end it will automatically open an html with the coverage % for every package.
+Simply run ```make run-tests``` and let the magic happens. At the end it will automatically open an html with the coverage % for every package. We also have the most recently applied unit tests file in this [folder](./docs/unit-tests-results/unit-tests-product.png) too. And there is a html file about the last unit tests [execution](./docs/unit-tests-results/coverage.html).
 
 ## Test + Build + Bake Image
 
