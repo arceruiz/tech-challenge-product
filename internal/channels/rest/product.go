@@ -22,9 +22,9 @@ type productChannel struct {
 	service service.ProductService
 }
 
-func NewProductChannel(productService service.ProductService) Product {
+func NewProductChannel() Product {
 	return &productChannel{
-		service: productService,
+		service: service.NewProductService(),
 	}
 }
 

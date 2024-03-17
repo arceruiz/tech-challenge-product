@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"sync"
 	"tech-challenge-product/internal/canonical"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,20 +13,32 @@ const (
 	productCollection = "product"
 )
 
+var (
+	once     sync.Once
+	instance productRepository
+)
+
 type ProductRepository interface {
 	GetAll(context.Context) ([]canonical.Product, error)
 	Create(ctx context.Context, product *canonical.Product) (*canonical.Product, error)
 	Update(context.Context, string, canonical.Product) error
 	GetByID(context.Context, string) (*canonical.Product, error)
 	GetByCategory(context.Context, string) ([]canonical.Product, error)
+	GetProductsWithId(ctx context.Context, ids []string) ([]canonical.Product, error)
 }
 
 type productRepository struct {
 	collection *mongo.Collection
 }
 
-func NewProductRepo(db *mongo.Database) ProductRepository {
-	return &productRepository{collection: db.Collection(productCollection)}
+func NewProductRepo() ProductRepository {
+	once.Do(func() {
+		instance = productRepository{
+			collection: NewMongo().Collection(productCollection),
+		}
+	})
+
+	return &instance
 }
 
 func (r *productRepository) GetAll(ctx context.Context) ([]canonical.Product, error) {
@@ -39,6 +52,28 @@ func (r *productRepository) GetAll(ctx context.Context) ([]canonical.Product, er
 		return nil, err
 	}
 	return results, nil
+}
+
+func (r *productRepository) GetProductsWithId(ctx context.Context, ids []string) ([]canonical.Product, error) {
+	filter := bson.M{
+		"_id": bson.M{
+			"$in": ids,
+		},
+	}
+
+	cursor, err := r.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var products []canonical.Product
+
+	err = cursor.All(ctx, &products)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
 
 func (r *productRepository) Create(ctx context.Context, product *canonical.Product) (*canonical.Product, error) {

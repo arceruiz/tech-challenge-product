@@ -13,16 +13,21 @@ type ProductService interface {
 	GetByID(context.Context, string) (*canonical.Product, error)
 	GetByCategory(context.Context, string) ([]canonical.Product, error)
 	Remove(context.Context, string) error
+	GetProductsWithId(ctx context.Context, ids []string) ([]canonical.Product, error)
 }
 
 type productService struct {
 	repo repository.ProductRepository
 }
 
-func NewProductService(repo repository.ProductRepository) ProductService {
+func NewProductService() ProductService {
 	return &productService{
-		repo: repo,
+		repo: repository.NewProductRepo(),
 	}
+}
+
+func (s *productService) GetProductsWithId(ctx context.Context, ids []string) ([]canonical.Product, error) {
+	return s.repo.GetProductsWithId(ctx, ids)
 }
 
 func (s *productService) GetAll(ctx context.Context) ([]canonical.Product, error) {

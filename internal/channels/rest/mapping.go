@@ -8,7 +8,7 @@ func (p *ProductRequest) toCanonical() *canonical.Product {
 		Description: p.Description,
 		Price:       p.Price,
 		Category:    p.Category,
-		Status:      canonical.BaseStatus(p.Status),
+		Status:      canonical.STATUS_ACTIVE,
 		ImagePath:   p.ImagePath,
 	}
 }

@@ -1,4 +1,4 @@
-package rest_test
+package rest
 
 import (
 	"bytes"
@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"tech-challenge-product/internal/canonical"
-	"tech-challenge-product/internal/channels/rest"
-	"tech-challenge-product/internal/mocks"
 	"tech-challenge-product/internal/service"
 	"testing"
 
@@ -35,7 +33,7 @@ func TestRegisterGroup(t *testing.T) {
 		"given valid group, should register endpoints successfully": {
 			given: Given{
 				group:          echo.New().Group("/product"),
-				paymenyService: &mocks.ProductServiceMock{},
+				paymenyService: &ProductServiceMock{},
 			},
 			expected: Expected{
 				err:        assert.NoError,
@@ -45,7 +43,8 @@ func TestRegisterGroup(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		p := rest.NewProductChannel(tc.given.paymenyService)
+		p := productChannel{(tc.given.paymenyService)}
+
 		p.RegisterGroup(tc.given.group)
 
 		rec := httptest.NewRecorder()
@@ -80,7 +79,7 @@ func TestCreate(t *testing.T) {
 	}{
 		"given normal json income must process normally": {
 			given: Given{
-				request:        createJsonRequest(http.MethodPost, endpoint, rest.ProductRequest{}),
+				request:        createJsonRequest(http.MethodPost, endpoint, ProductRequest{}),
 				paymenyService: mockProductServiceForCreate(canonical.Product{}, canonical.Product{}),
 			},
 			expected: Expected{
@@ -112,7 +111,10 @@ func TestCreate(t *testing.T) {
 
 	for _, tc := range tests {
 		rec := httptest.NewRecorder()
-		err := rest.NewProductChannel(tc.given.paymenyService).Add(echo.New().NewContext(tc.given.request, rec))
+
+		channel := productChannel{tc.given.paymenyService}
+
+		err := channel.Add(echo.New().NewContext(tc.given.request, rec))
 		statusCode := rec.Result().StatusCode
 
 		assert.Equal(t, tc.expected.statusCode, statusCode)
@@ -140,7 +142,7 @@ func TestUpdate(t *testing.T) {
 		"given normal json income must process normally": {
 			given: Given{
 				pathParamID:    "valid_ID",
-				request:        createJsonRequest(http.MethodPost, endpoint, rest.ProductRequest{}),
+				request:        createJsonRequest(http.MethodPost, endpoint, ProductRequest{}),
 				paymenyService: mockProductServiceForUpdate("valid_ID", canonical.Product{}),
 			},
 			expected: Expected{
@@ -178,7 +180,10 @@ func TestUpdate(t *testing.T) {
 		e.SetPath("/:id")
 		e.SetParamNames("id")
 		e.SetParamValues(tc.given.pathParamID)
-		err := rest.NewProductChannel(tc.given.paymenyService).Update(e)
+
+		channel := productChannel{tc.given.paymenyService}
+
+		err := channel.Update(e)
 		statusCode := rec.Result().StatusCode
 
 		assert.Equal(t, tc.expected.statusCode, statusCode)
@@ -207,7 +212,7 @@ func TestRemove(t *testing.T) {
 			given: Given{
 				pathParamID:    "valid_ID",
 				request:        createRequest(http.MethodPost, endpoint),
-				paymenyService: mockProductServiceForRemove("valid_ID", canonical.Product{}),
+				paymenyService: mockProductServiceForRemove("valid_ID"),
 			},
 			expected: Expected{
 				err:        assert.NoError,
@@ -218,7 +223,7 @@ func TestRemove(t *testing.T) {
 			given: Given{
 				pathParamID:    "invalid_ID",
 				request:        createRequest(http.MethodPost, endpoint),
-				paymenyService: mockProductServiceForRemove("valid_ID", canonical.Product{}),
+				paymenyService: mockProductServiceForRemove("valid_ID"),
 			},
 			expected: Expected{
 				err:        assert.NoError,
@@ -233,7 +238,10 @@ func TestRemove(t *testing.T) {
 		e.SetPath("/:id")
 		e.SetParamNames("id")
 		e.SetParamValues(tc.given.pathParamID)
-		err := rest.NewProductChannel(tc.given.paymenyService).Remove(e)
+
+		channel := productChannel{tc.given.paymenyService}
+
+		err := channel.Remove(e)
 		statusCode := rec.Result().StatusCode
 
 		assert.Equal(t, tc.expected.statusCode, statusCode)
@@ -262,7 +270,7 @@ func TestGet(t *testing.T) {
 		"given clean request returns valid product and status 200": {
 			given: Given{
 				request: createRequest(http.MethodGet, endpoint),
-				paymenyService: mockProductServiceForGetAll("1234", []canonical.Product{{
+				paymenyService: mockProductServiceForGetAll([]canonical.Product{{
 					ID: "1234",
 				}}),
 			},
@@ -302,7 +310,7 @@ func TestGet(t *testing.T) {
 		"given empty id returns no product and status 400": {
 			given: Given{
 				request:        createRequest(http.MethodGet, endpoint),
-				paymenyService: mockProductServiceForGetAll_error("1234", nil),
+				paymenyService: mockProductServiceForGetAll_error(nil),
 			},
 			expected: Expected{
 				err:        assert.NoError,
@@ -312,7 +320,7 @@ func TestGet(t *testing.T) {
 		"given invalic id returns no product and status 404": {
 			given: Given{
 				request:        createRequest(http.MethodGet, endpoint),
-				paymenyService: mockProductServiceForGetAll("1234", nil),
+				paymenyService: mockProductServiceForGetAll(nil),
 			},
 			expected: Expected{
 				err:        assert.NoError,
@@ -328,7 +336,10 @@ func TestGet(t *testing.T) {
 		if tc.given.pathParamKey != "" {
 			e.QueryParams().Add(tc.given.pathParamKey, tc.given.pathParamValue)
 		}
-		err := rest.NewProductChannel(tc.given.paymenyService).Get(e)
+
+		channel := productChannel{tc.given.paymenyService}
+
+		err := channel.Get(e)
 		statusCode := rec.Result().StatusCode
 
 		assert.Equal(t, tc.expected.statusCode, statusCode)
@@ -337,8 +348,8 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func mockProductServiceForRemove(id string, productReturned canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForRemove(id string) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 
 	mockProductSvc.
 		On("Remove", mock.Anything, id).
@@ -351,8 +362,8 @@ func mockProductServiceForRemove(id string, productReturned canonical.Product) *
 	return mockProductSvc
 }
 
-func mockProductServiceForUpdate(id string, productReturned canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForUpdate(id string, productReturned canonical.Product) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 
 	mockProductSvc.
 		On("Update", mock.Anything, id, productReturned).
@@ -365,8 +376,8 @@ func mockProductServiceForUpdate(id string, productReturned canonical.Product) *
 	return mockProductSvc
 }
 
-func mockProductServiceForGetByCategory(category string, productReturned []canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForGetByCategory(category string, productReturned []canonical.Product) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 
 	mockProductSvc.
 		On("GetByCategory", mock.Anything, category).
@@ -375,8 +386,8 @@ func mockProductServiceForGetByCategory(category string, productReturned []canon
 	return mockProductSvc
 }
 
-func mockProductServiceForGetByID(productID string, productReturned *canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForGetByID(productID string, productReturned *canonical.Product) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 
 	mockProductSvc.
 		On("GetByID", mock.Anything, productID).
@@ -385,8 +396,8 @@ func mockProductServiceForGetByID(productID string, productReturned *canonical.P
 	return mockProductSvc
 }
 
-func mockProductServiceForGetAll(productID string, productReturned []canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForGetAll(productReturned []canonical.Product) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 
 	mockProductSvc.
 		On("GetAll", mock.Anything).
@@ -395,8 +406,8 @@ func mockProductServiceForGetAll(productID string, productReturned []canonical.P
 	return mockProductSvc
 }
 
-func mockProductServiceForGetAll_error(productID string, productReturned []canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForGetAll_error(productReturned []canonical.Product) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 
 	mockProductSvc.
 		On("GetAll", mock.Anything).
@@ -405,8 +416,8 @@ func mockProductServiceForGetAll_error(productID string, productReturned []canon
 	return mockProductSvc
 }
 
-func mockProductServiceForCreate(productReceived, productReturned canonical.Product) *mocks.ProductServiceMock {
-	mockProductSvc := new(mocks.ProductServiceMock)
+func mockProductServiceForCreate(productReceived, productReturned canonical.Product) *ProductServiceMock {
+	mockProductSvc := new(ProductServiceMock)
 	mockProductSvc.On("Create", mock.Anything, &productReceived).Return(&productReturned, nil)
 	mockProductSvc.On("Create", mock.Anything, &canonical.Product{
 		ID:          "",

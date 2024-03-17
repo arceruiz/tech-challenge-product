@@ -1,9 +1,8 @@
-package repository_test
+package repository
 
 import (
 	"context"
 	"tech-challenge-product/internal/canonical"
-	"tech-challenge-product/internal/repository"
 	"testing"
 	"time"
 
@@ -31,7 +30,9 @@ func TestProductRepository_GetByID(t *testing.T) {
 		"given valid search result, must return valid product": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(
 						mtest.CreateCursorResponse(1,
 							"product.product",
@@ -57,7 +58,9 @@ func TestProductRepository_GetByID(t *testing.T) {
 		"given entity not found must return error": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(mtest.CreateCursorResponse(0, "product.product", mtest.FirstBatch))
 					product, err := repo.GetByID(context.Background(), "asd")
 					assert.NotNil(t, err)
@@ -92,7 +95,9 @@ func TestProductRepository_GetAll(t *testing.T) {
 		"given valid search result, must return valid product": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 
 					first := mtest.CreateCursorResponse(1, "product.product", mtest.FirstBatch, bson.D{
 						{Key: "_id", Value: "product_valid_id"},
@@ -127,7 +132,9 @@ func TestProductRepository_GetAll(t *testing.T) {
 		"given entity not found must return error": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(mtest.CreateWriteErrorsResponse(mtest.WriteError{Message: "mongo: no documents in result"}))
 					product, err := repo.GetAll(context.Background())
 					assert.NotNil(t, err)
@@ -162,8 +169,9 @@ func TestProductRepository_GetByCategory(t *testing.T) {
 		"given valid search result, must return valid product": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
-
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					first := mtest.CreateCursorResponse(1, "product.product", mtest.FirstBatch, bson.D{
 						{Key: "_id", Value: "product_valid_id"},
 						{Key: "name", Value: "product_valid_name"},
@@ -197,7 +205,10 @@ func TestProductRepository_GetByCategory(t *testing.T) {
 		"given entity not found must return error": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
+
 					mt.AddMockResponses(mtest.CreateWriteErrorsResponse(mtest.WriteError{Message: "mongo: no documents in result"}))
 					product, err := repo.GetByCategory(context.Background(), "asd")
 					assert.NotNil(t, err)
@@ -232,7 +243,9 @@ func TestCreate(t *testing.T) {
 		"given given no error saving must return correct entity": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(mtest.CreateSuccessResponse())
 
 					product := &canonical.Product{
@@ -256,7 +269,9 @@ func TestCreate(t *testing.T) {
 		"given given error saving must return error": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(
 						bson.D{
 							{Key: "ok", Value: -1},
@@ -307,7 +322,9 @@ func TestUpdate(t *testing.T) {
 		"given given no error updating must return no error": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(bson.D{
 						{Key: "ok", Value: 1},
 						{Key: "value", Value: bson.D{
@@ -341,7 +358,9 @@ func TestUpdate(t *testing.T) {
 		"given error saving must return error": {
 			given: Given{
 				mtestFunc: func(mt *mtest.T) {
-					repo := repository.NewProductRepo(mt.DB)
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
 					mt.AddMockResponses(
 						bson.D{
 							{Key: "ok", Value: -1},
@@ -361,6 +380,82 @@ func TestUpdate(t *testing.T) {
 
 					assert.NotNil(t, err)
 
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		db := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+		db.Run("", tc.given.mtestFunc)
+	}
+}
+
+func TestGetProductsWithId(t *testing.T) {
+	type Given struct {
+		mtestFunc func(mt *mtest.T)
+	}
+	type Expected struct {
+	}
+	tests := map[string]struct {
+		given    Given
+		expected Expected
+	}{
+		"given valid search result, must return valid product": {
+			given: Given{
+				mtestFunc: func(mt *mtest.T) {
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
+					first := mtest.CreateCursorResponse(1, "product.product", mtest.FirstBatch, bson.D{
+						{Key: "_id", Value: "123"},
+						{Key: "name", Value: "product_valid_name"},
+						{Key: "description", Value: "product_valid_desc"},
+						{Key: "price", Value: 10.0},
+						{Key: "category", Value: "product_valid_category"},
+						{Key: "status", Value: 0},
+						{Key: "image_path", Value: "product_valid_imgpath"},
+					})
+					getMore := mtest.CreateCursorResponse(1, "product.product", mtest.NextBatch, bson.D{
+						{Key: "_id", Value: "234"},
+						{Key: "name", Value: "product_valid_name"},
+						{Key: "description", Value: "product_valid_desc"},
+						{Key: "price", Value: 10.0},
+						{Key: "category", Value: "product_valid_category"},
+						{Key: "status", Value: 0},
+						{Key: "image_path", Value: "product_valid_imgpath"},
+					})
+
+					lastCursor := mtest.CreateCursorResponse(0, "product.product", mtest.NextBatch)
+
+					mt.AddMockResponses(first, getMore, lastCursor)
+
+					products, err := repo.GetProductsWithId(context.Background(), []string{
+						"123", "234",
+					})
+					for _, product := range products {
+						assert.Nil(t, err)
+						assert.Equal(t, product.Category, "product_valid_category")
+						assert.Equal(t, product.Description, "product_valid_desc")
+						assert.Equal(t, product.Status, canonical.STATUS_ACTIVE)
+					}
+				},
+			},
+		},
+		"given entity not found must return error": {
+			given: Given{
+				mtestFunc: func(mt *mtest.T) {
+					repo := productRepository{
+						mt.DB.Collection("fake-collection"),
+					}
+
+					mt.AddMockResponses(mtest.CreateWriteErrorsResponse(mtest.WriteError{Message: "mongo: no documents in result"}))
+					product, err := repo.GetProductsWithId(context.Background(), []string{
+						"123", "234",
+					})
+					assert.NotNil(t, err)
+					assert.Equal(t, err.Error(), "write command error: [{write errors: [{mongo: no documents in result}]}, {<nil>}]")
+					assert.Nil(t, product)
 				},
 			},
 		},
