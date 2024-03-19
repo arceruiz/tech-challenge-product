@@ -1,8 +1,7 @@
-package mocks
+package service
 
 import (
 	"context"
-
 	"tech-challenge-product/internal/canonical"
 
 	"github.com/stretchr/testify/mock"
@@ -37,5 +36,11 @@ func (m *ProductRepositoryMock) GetByID(ctx context.Context, id string) (*canoni
 
 func (m *ProductRepositoryMock) GetByCategory(ctx context.Context, category string) ([]canonical.Product, error) {
 	args := m.Called(ctx, category)
+	return args.Get(0).([]canonical.Product), args.Error(1)
+}
+
+func (m *ProductRepositoryMock) GetProductsWithId(ctx context.Context, ids []string) ([]canonical.Product, error) {
+	args := m.Called()
+
 	return args.Get(0).([]canonical.Product), args.Error(1)
 }

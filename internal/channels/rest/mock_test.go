@@ -1,4 +1,4 @@
-package mocks
+package rest
 
 import (
 	"context"
@@ -39,4 +39,10 @@ func (m *ProductServiceMock) GetByCategory(ctx context.Context, category string)
 func (m *ProductServiceMock) Remove(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
+}
+
+func (m *ProductServiceMock) GetProductsWithId(ctx context.Context, ids []string) ([]canonical.Product, error) {
+	args := m.Called(ids)
+
+	return args.Get(0).([]canonical.Product), args.Error(1)
 }

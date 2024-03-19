@@ -40,3 +40,7 @@ func parse(dirs ...string) {
 		log.Panic(err)
 	}
 }
+
+func Get() Config {
+	return Cfg
+}

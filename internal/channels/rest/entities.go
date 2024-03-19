@@ -19,6 +19,5 @@ type ProductRequest struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Category    string  `json:"category"`
-	Status      int     `json:"status"`
 	ImagePath   string  `json:"image_path"`
 }
