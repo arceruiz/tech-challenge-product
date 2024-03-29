@@ -28,6 +28,7 @@ func (r rest) Start() error {
 
 	mainGroup := router.Group("/api")
 
+	mainGroup.GET("/healthz", r.product.HealthCheck)
 	productGroup := mainGroup.Group("/product")
 	r.product.RegisterGroup(productGroup)
 	//productGroup.Use(middlewares.Authorization)

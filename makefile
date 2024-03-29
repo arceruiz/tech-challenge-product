@@ -8,4 +8,9 @@ run-app:
 	go run cmd/client/main.go
 
 test-build-bake:
-	docker build -t product-service . -f build/Dockerfile
+	docker build -t docker.io/mauricio1998/product-service . -f build/Dockerfile
+
+docker-push:
+	docker push docker.io/mauricio1998/product-service
+
+boiler-plate: test-build-bake docker-push

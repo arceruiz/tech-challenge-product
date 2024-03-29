@@ -4,6 +4,8 @@ import (
 	"context"
 	"tech-challenge-product/internal/canonical"
 	"tech-challenge-product/internal/repository"
+
+	"github.com/rs/zerolog/log"
 )
 
 type ProductService interface {
@@ -36,7 +38,14 @@ func (s *productService) GetAll(ctx context.Context) ([]canonical.Product, error
 
 func (s *productService) Create(ctx context.Context, product *canonical.Product) (*canonical.Product, error) {
 	product.ID = canonical.NewUUID()
-	return s.repo.Create(ctx, product)
+
+	p, err := s.repo.Create(ctx, product)
+	if err != nil {
+		log.Error().Err(err).Msg("an error occurred when create product")
+		return nil, err
+	}
+
+	return p, nil
 }
 
 func (s *productService) Update(ctx context.Context, id string, updatedProduct canonical.Product) error {

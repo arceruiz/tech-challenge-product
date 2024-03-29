@@ -2,7 +2,9 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"net"
+	"tech-challenge-product/internal/config"
 	"tech-challenge-product/internal/service"
 
 	protocol "google.golang.org/grpc"
@@ -19,9 +21,9 @@ func New() ProductServiceServer {
 	}
 }
 
-func Listen(port int) error {
+func Listen() error {
 	server := protocol.NewServer()
-	listener, err := net.Listen("tcp", ":3004")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", config.Get().Server.GRPC))
 	if err != nil {
 		return err
 	}
