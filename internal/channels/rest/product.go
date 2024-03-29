@@ -16,6 +16,7 @@ type Product interface {
 	Add(c echo.Context) error
 	Update(c echo.Context) error
 	Remove(c echo.Context) error
+	HealthCheck(c echo.Context) error
 }
 
 type productChannel struct {
@@ -35,6 +36,10 @@ func (p *productChannel) RegisterGroup(g *echo.Group) {
 	g.POST(indexPath, p.Add)
 	g.PUT(indexPath+":id", p.Update)
 	g.DELETE(indexPath+":id", p.Remove)
+}
+
+func (r *productChannel) HealthCheck(c echo.Context) error {
+	return c.NoContent(http.StatusOK)
 }
 
 func (p *productChannel) Get(ctx echo.Context) error {

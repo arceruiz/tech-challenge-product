@@ -11,7 +11,7 @@ import (
 func main() {
 	config.ParseFromFlags()
 	go func() {
-		logrus.Fatal(grpc.Listen(3002))
+		logrus.Fatal(grpc.Listen())
 	}()
 
 	if err := rest.New(rest.NewProductChannel()).Start(); err != nil {

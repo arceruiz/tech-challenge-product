@@ -17,9 +17,10 @@ type Config struct {
 	} `cfg:"token"`
 	Server struct {
 		Port string `cfg:"port"`
+		GRPC string `cfg:"grpc"`
 	} `cfg:"server"`
 	DB struct {
-		ConnectionString string `cfg:"connectionString"`
+		ConnectionString string `cfg:"connection_string"`
 	} `cfg:"db"`
 }
 

@@ -8,7 +8,6 @@ This service is responsible for persisting and managing the products. We have a 
 
 - Create products
 - Search products By ID
-- Receive Callbacks from product providers
 
 ## How To Run Locally
 
